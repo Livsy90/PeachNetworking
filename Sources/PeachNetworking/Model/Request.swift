@@ -2,12 +2,12 @@ import Foundation
 
 public struct Request: Identifiable, Hashable, Sendable {
     
-    public enum Scheme: String, Equatable, Hashable, Sendable {
+    public enum HTTPScheme: String, Equatable, Hashable, Sendable {
         case http
         case https
     }
     
-    public enum Method: String, Equatable, Hashable, Sendable {
+    public enum HTTPMethod: String, Equatable, Hashable, Sendable {
         case connect
         case delete
         case get
@@ -21,11 +21,11 @@ public struct Request: Identifiable, Hashable, Sendable {
     
     public let id: UUID
     public let url: URL
-    public let scheme: Scheme
+    public let scheme: HTTPScheme
     public let host: String
     public let path: String
     public let parameters: [String: String]
-    public let method: Method
+    public let method: HTTPMethod
     public let headers: [String: String]
     public let body: Data?
     public let cachePolicy: NSURLRequest.CachePolicy
@@ -43,11 +43,11 @@ public struct Request: Identifiable, Hashable, Sendable {
     public init(
         id: UUID = .init(),
         url: URL?,
-        method: Method = .get,
-        headers: [String : String] = [:],
+        method: HTTPMethod = .get,
+        headers: [String: String] = .init(),
         body: Data? = nil,
         cachePolicy: NSURLRequest.CachePolicy = .returnCacheDataElseLoad,
-        timeout: TimeInterval = 60
+        timeout: TimeInterval = 120
     ) throws {
         guard let url else {
             throw URLError(.badURL)
@@ -57,7 +57,7 @@ public struct Request: Identifiable, Hashable, Sendable {
             throw URLError(.badURL)
         }
         
-        guard let rawScheme = components.scheme, let scheme = Scheme(rawValue: rawScheme) else {
+        guard let rawScheme = components.scheme, let scheme = HTTPScheme(rawValue: rawScheme) else {
             throw URLError(.unsupportedURL)
         }
         
@@ -83,16 +83,16 @@ public struct Request: Identifiable, Hashable, Sendable {
     }
     
     public init(
-        id: UUID = UUID(),
-        scheme: Scheme = .https,
+        id: UUID = .init(),
+        scheme: HTTPScheme = .https,
         host: String,
         path: String = "/",
-        parameters: [String: String] = [:],
-        method: Method = .get,
-        headers: [String : String] = [:],
+        parameters: [String: String] = .init(),
+        method: HTTPMethod = .get,
+        headers: [String: String] = .init(),
         body: Data? = nil,
         cachePolicy: NSURLRequest.CachePolicy = .returnCacheDataElseLoad,
-        timeout: TimeInterval = 60
+        timeout: TimeInterval = 120
     ) throws {
         var components = URLComponents()
         components.scheme = scheme.rawValue
